@@ -11,6 +11,7 @@
             <Filters>
                 <Filter type="MarkerFilter" marker="FLOW" onMatch="DENY" onMismatch="NEUTRAL" />
                 <Filter type="MarkerFilter" marker="EXCEPTION" onMatch="DENY" onMismatch="ACCEPT" />
+                <Filter type="ThresholdFilter" level="info" />
             </Filters>
         </Appender>
         <Appender type="Console" name="FLOW">

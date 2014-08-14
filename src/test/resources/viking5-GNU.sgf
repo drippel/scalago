@@ -1,0 +1,78 @@
+(;GM[1]FF[4]
+SZ[9]KM[7.50]
+PW[viking5]PB[GNU]BR[13k]
+PC[The Kiseido Go Server (KGS) at http://kgs.kiseido.com/]
+DT[2005-11-06]AP[CGoban:2]
+EV[Eighth KGS Computer Go Tournament - Formal division]RE[B+Resign]
+TM[780]RU[Chinese]
+C[zapp Q This will be interesting
+viking5 Q GTP Engine for viking5 (white): Viking version 5.2.2
+GNU 13k GTP Engine for GNU (black): GNU Go version 3.7.7
+]
+RO[2]CA[UTF-8]ST[2]
+;B[ee];W[ce];B[cd];W[gc];B[de]
+C[gunnar Q Did Viking play second move from opening book?
+];W[eg]
+;B[cf];W[gh]C[zapp Q I did not see it play it
+];B[ec]
+C[gunnar Q (It was very fast.)
+gunnar Q G2 looks a bit low.
+zapp Q Then it was
+]
+;W[fb];B[eb]C[gunnar Q GNU thinks W+6.
+gunnar Q G5 was third move.
+]
+;W[gf];B[dg]C[zapp Q Viking thinks it is 50+50
+gunnar Q W+10 now.
+gunnar Q GNU very pessimistic.
+]
+;W[dh];B[ch]C[zapp Q Should be with big komi
+zapp Q Viking tends to always beat gnu in a game like this
+gunnar Q W+12. It gets worse with every move.
+]
+;W[cg];B[bg]C[gunnar Q C3?
+zapp Q Can be a symptom that Viking is behind
+Dssq 9k : C3 = 9P move
+]
+;W[ei];B[ge]C[gunnar Q Finally G5.
+gunnar Q W+4 now.
+];W[fe]
+;B[fd]C[zapp Q Viking was thinking of H5
+zapp Q but ran out of time
+gunnar Q Ah, F5 didn't look very good.
+]
+;W[ff];B[gd]C[zapp Q I am playing on my laptop today
+zapp Q Last time I had my father 3Ghz machine
+gunnar Q What speed?
+zapp Q 1.7
+]
+;W[hd];B[hb]
+C[zapp Q And that tournament I think the time per game was longer
+]
+;W[hc];B[he]
+C[gunnar Q GNU is playing on a 1.6 GHz Athlon (marketing name XP1900+)
+]
+;W[ea];B[fc]
+C[zapp Q Does it play much stronger using more time on 9x9
+]
+;W[gb]C[gunnar Q Doubtful.
+];B[id]
+C[gunnar Q GNU thinks the corner will die.
+zapp Q For Viking every second makes a difference
+]
+;W[ic];B[ha]C[zapp Q Viking agrees with that
+];W[cb];B[da];W[fa]
+C[zapp Q At 3 minutes per move Viking is pretty good
+];B[db]
+;W[ie];B[hf];W[if];B[hg];W[ig];B[hh]C[zapp Q Good game for gnu
+gunnar Q Looks like white collapsed.
+gunnar Q G2 was a gift.
+zapp Q As a said: at C3 viking probably felt it was behind
+gunnar Q Interesting that they both thought so. :-)
+zapp Q I should have implemented an idea to spend twice the time on first move out of book
+zapp Q I am rerunning Viking for position it played G2
+gunnar Q What is the right move?
+zapp Q 1ply G3 2ply G3 3ply G4
+zapp Q Which means it played G2 because of the random nature of monte carlo eval
+]
+)

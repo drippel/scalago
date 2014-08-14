@@ -1,7 +1,14 @@
 package dr.sgo.model
 
-class GameState {
+import dr.sgo.model.play.Play
+
+class GameState( val play : Play ) {
+
+  var player : Player = null
+  var board : Board = null
 
   var prev : GameState = null
-  var next : GameState = null
+  var next = List[GameState]()
+
+  play.excecute(this)
 }
