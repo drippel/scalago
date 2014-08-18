@@ -10,7 +10,7 @@ C[TheGNUGo 12K GTP Engine for TheGNUGo (black): GNU Go version 3.7.7
 WeakBot50k 29k GTP Engine for WeakBot50k (white): WeakBot50k: At end of game I will pass once your stones are so safe that you can pass FOREVER. If I'm too hard, try IdiotBot. If I'm too easy, try humans or SimpleBot. 30k humans and SimpleBot 30k are about 10-20 stones stronger. My info contains links to my source code: version 0.1.7.goal_test
 ]
 CA[UTF-8]RO[6]
-;B[jd];W[lj];B[c];W[id];B[ic];W[jc];B[kd];W[je];B[ie];W[ld];B[hd]
+;B[jd];W[lj];B[hc];W[id];B[ic];W[jc];B[kd];W[je];B[ie];W[ld];B[hd]
 ;W[ke];B[kc];W[kb];B[lc];W[lb];B[le];W[jb];B[kf];W[jf];B[jg];W[jh]
 ;B[if];W[kg];B[ih];W[lf];B[kh];W[je];B[ji];W[mc];B[md];W[gc];B[dc]
 ;W[hb];B[ib];W[he];B[ef];W[gd];B[gb];W[ha];B[ia];W[lh];B[jk];W[hf]

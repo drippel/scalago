@@ -1,5 +1,5 @@
 package dr.sgo.sgf.parser
 
-class GameProperty( id : String, vals : List[String] ) {
+class GameProperty( val id : String, var values : List[String] ) {
 
 }

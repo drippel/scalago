@@ -1,3 +1,3 @@
 package dr.sgo.model
 
-class Player( val name : String )
+class Player( var name : String, var rank : String = "" )

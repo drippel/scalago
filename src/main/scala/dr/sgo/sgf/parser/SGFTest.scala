@@ -13,11 +13,20 @@ object SGFTest {
     var exts = Array( "sgf" )
     var iter = JavaConversions.asScalaIterator( FileUtils.iterateFiles( new File( "c:/dev/projects/go/sgo/git/sgo/src/test/resources" ), exts, true ) )
     for ( f <- iter ) {
+
       logger.info( f.getCanonicalPath() )
+
       var gt = p.loadSGF( f.getCanonicalPath() )
+
       logger.info( gt._1 )
 
-      // var g = GameTree.convertToGame( gt );
+      gt._2 match {
+        case Some(tree) => {
+          var g = GameTree.convert( tree )
+        }
+        case None => {}
+      }
+
       // println( g.board.showBoard() )
     }
   }

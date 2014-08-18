@@ -6,7 +6,7 @@ import dr.sgo.model.Board
 
 class Setup( val size : Int ) extends Play {
 
-  def excecute( state : GameState ) : Unit = {
+  def execute( state : GameState ) : Unit = {
 
     state.board = new Board(size)
 

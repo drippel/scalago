@@ -4,6 +4,6 @@ import dr.sgo.model.GameState
 
 abstract class Play {
 
-  def excecute( state : GameState ) : Unit
+  def execute( state : GameState ) : Unit
 
 }

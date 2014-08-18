@@ -1,14 +1,33 @@
 package dr.sgo.model
 
 import dr.sgo.model.play.Play
+import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.HashMap
 
-class GameState( val play : Play ) {
+class GameState( val prev : Option[GameState], val player : Option[Player], val play : Play ) {
 
-  var player : Player = null
-  var board : Board = null
+  var board : Board = prev match {
+    case Some(p) => { p.board.clone }
+    case _ => { new Board(19) }
+  }
 
-  var prev : GameState = null
-  var next = List[GameState]()
+  val next = ListBuffer[GameState]()
 
-  play.excecute(this)
+  play.execute(this)
+
+  var comment = ""
+
+  val territory = HashMap[Color,List[Position]]()
+
+  var toPlay = ""
+  var blackTimeLeft = ""
+  var whiteTimeLeft = ""
+  var blackMovesLeft = ""
+  var whiteMovesLeft = ""
+  var id = ""
+  var name = ""
+
+  val circle = ListBuffer[Position]()
+  val labels = ListBuffer[Label]()
+  val illegals = ListBuffer[Position]()
 }
