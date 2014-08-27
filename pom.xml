@@ -120,6 +120,24 @@
                             <goal>single</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>stest</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>stest</finalName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>dr.sgo.sgf.parser.SGFTest</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
 

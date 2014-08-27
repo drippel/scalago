@@ -18,4 +18,22 @@ class Board( val size : Int ) {
   def setStone( stone : Stone, pos : Position ) = { grid(pos.X)(pos.Y) = stone }
 
   def getStone( pos : Position ) = { grid(pos.X)(pos.Y) }
+
+  def getRow( r : Int ) : List[Stone] = {
+
+    val row = for( i <- 0 until size ) yield {
+      grid(i)(r)
+    }
+
+    row.toList
+  }
+
+  def getCol( c : Int ) : List[Stone] = {
+
+    val col = for( j <- 0 until size ) yield {
+      grid(c)(j)
+    }
+
+    col.toList
+  }
 }

@@ -4,6 +4,7 @@ import scala.collection.JavaConversions
 import org.apache.commons.io.FileUtils
 import java.io.File
 import org.apache.logging.log4j.LogManager
+import dr.sgo.ui.console.SGoConsole
 
 object SGFTest {
   val logger = LogManager.getLogger("dr.sgo")
@@ -23,6 +24,7 @@ object SGFTest {
       gt._2 match {
         case Some(tree) => {
           var g = GameTree.convert( tree )
+          SGoConsole.renderGame(g)
         }
         case None => {}
       }
