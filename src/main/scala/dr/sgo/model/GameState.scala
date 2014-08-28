@@ -13,8 +13,6 @@ class GameState( val prev : Option[GameState], val player : Option[Player], val 
 
   val next = ListBuffer[GameState]()
 
-  play.execute(this)
-
   var comment = ""
 
   val territory = HashMap[Color,List[Position]]()
@@ -30,4 +28,9 @@ class GameState( val prev : Option[GameState], val player : Option[Player], val 
   val circle = ListBuffer[Position]()
   val labels = ListBuffer[Label]()
   val illegals = ListBuffer[Position]()
+
+  val groups = ListBuffer[Group]()
+  val captures = ListBuffer[Group]()
+
+  play.execute(this)
 }

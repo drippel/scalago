@@ -80,6 +80,6 @@ class GroupTest {
     chains.foreach( Console.println(_) )
 
     assertTrue( chains != null )
-    assertTrue( chains.size == 2 )
+    assertTrue( chains.size == 3 )
   }
 }

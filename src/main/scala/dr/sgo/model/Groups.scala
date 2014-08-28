@@ -19,6 +19,10 @@ object Groups {
 
   def whites( board : Board ) : List[Position] = { byColor( board, White() ) }
 
+  def findGroups( board : Board ) : List[Group] = {
+    findChains(board)
+  }
+
   def findChains( board : Board ) : List[Chain] = {
 
     val bcs = findChains( board, blacks(board) )
@@ -39,10 +43,6 @@ object Groups {
     found.toList
   }
 
-  def validPositions( ps : List[Position], size : Int ) : List[Position] = {
-    ps.filter( (p) => { p.X >= 0 && p.X < size && p.Y >= 0 && p.Y < size } )
-  }
-
   def followChain( board : Board, position : Position ) : Chain = {
 
     val chain = new Chain()
@@ -57,7 +57,7 @@ object Groups {
           chain.positions += ip
 
           // visit neighbors
-          val vps = validPositions( ip.lateral, board.size )
+          val vps = Position.validPositions( ip.lateral, board.size )
           // val neighbors = vps.filter( (p) => {} )
           vps.foreach( (p) => followChainInner(p))
         }
@@ -70,6 +70,7 @@ object Groups {
     chain
 
   }
+
 
 
 

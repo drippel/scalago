@@ -6,8 +6,8 @@ class Group {
 
   var color : Color = Open()
   val positions = ListBuffer[Position]()
+  val liberties = ListBuffer[Position]()
 
-  var libertiesTotal = 0
   var libertiesFirst = 0
   var libertiesSecond = 0
   var libertiesThird = 0
@@ -17,6 +17,20 @@ class Group {
 
   override def toString() : String = {
     "[" + color +" " + positions.mkString(" ") + "]"
+  }
+
+  override def equals( obj : Any ) : Boolean = {
+
+    if( !obj.isInstanceOf[Group] ){
+      false
+    }
+    else {
+
+      val g = obj.asInstanceOf[Group]
+      g.positions.equals(positions)
+
+    }
+
   }
 
 }

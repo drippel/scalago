@@ -36,4 +36,10 @@ class Board( val size : Int ) {
 
     col.toList
   }
+
+  def isOpen( pos : Position ) = { grid(pos.X)(pos.Y).color == Open() }
+
+  def clearStones( ps : List[Position] ) = {
+    for( p <- ps ){ grid(p.X)(p.Y) = new Stone( Open() )}
+  }
 }

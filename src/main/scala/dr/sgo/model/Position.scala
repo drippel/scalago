@@ -18,7 +18,7 @@ class Position( val X : Int, val Y : Int ) {
 
   }
 
-
+  override def hashCode() : Int = { X.hashCode + Y.hashCode }
 
   def n() = { new Position( X, ( Y - 1 )) }
   def s() = { new Position( X, ( Y + 1 )) }
@@ -33,5 +33,15 @@ class Position( val X : Int, val Y : Int ) {
   def lateral() = { List(n,s,e,w) }
   def diagonal() = { List(ne,nw,se,sw) }
   def neighbors() = { lateral ++ diagonal }
+}
 
+object Position {
+
+  def validPositions( ps : List[Position], size : Int ) : List[Position] = {
+    ps.filter( (p) => { p.X >= 0 && p.X < size && p.Y >= 0 && p.Y < size } )
+  }
+
+  implicit def tupleToPos( t : (Int,Int) ) : Position = {
+    new Position( t._1, t._2 )
+  }
 }
