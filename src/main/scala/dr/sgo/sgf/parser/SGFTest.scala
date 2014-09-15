@@ -12,7 +12,7 @@ object SGFTest {
     logger.info( "Test" )
     var p = new SGFParser()
     var exts = Array( "sgf" )
-    var iter = JavaConversions.asScalaIterator( FileUtils.iterateFiles( new File( "c:/dev/projects/go/sgo/git/sgo/src/test/resources" ), exts, true ) )
+    var iter = JavaConversions.asScalaIterator( FileUtils.iterateFiles( new File( "c:/dev/projects/go/sgo/git/sgo/src/test/resources/sgf" ), exts, true ) )
     for ( f <- iter ) {
 
       logger.info( f.getCanonicalPath() )

@@ -1,7 +1,16 @@
 package dr.sgo.gtp
 
-class GTPParser {
+import org.apache.commons.lang3.StringUtils
+import dr.sgo.model.Game
+import org.apache.commons.io.IOUtils
+import java.io.FileReader
+import java.io.File
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
+import dr.sgo.model.Player
 
+class GTPParser {
 
   // commands are in the form of
   // id SPACE command SPACE args NL
@@ -14,7 +23,6 @@ class GTPParser {
 
   // comments
   // # comments NL
-
 
   // id is optional in both cases
 
@@ -251,5 +259,73 @@ reg_genmove
 
    */
 
+}
+
+object GTPParser {
+
+  def readFile( fileName : String ) : List[String] = {
+    IOUtils.readLines( new FileReader( new File( fileName ) ) ).toList
+  }
+
+  def parseLines( lines : List[String] ) : List[GTPCommand] = {
+    lines.map( ( l ) => { parseLine( l ) } ).flatten
+  }
+
+  def parseLine( line : String ) : Option[GTPCommand] = {
+
+    if ( StringUtils.isBlank( line ) ) {
+      None
+    } else {
+      val stripped = if ( line.contains( "#" ) ) { line.substring( 0, line.indexOf( '#' ) ) }
+      else { line }
+
+      if ( StringUtils.isBlank( stripped ) ) {
+        None
+      } else {
+
+        val parts = StringUtils.split( stripped )
+
+        val t = if ( parts( 0 )( 0 ).isDigit ) { ( parts.head, parts.tail ) }
+        else { ( "", parts ) }
+
+        Some( new GTPCommand( t._1, t._2.head, t._2.tail.toList ) )
+
+      }
+    }
+  }
+
+  def execute( cmds : List[GTPCommand] ) : List[Game] = {
+
+    val games = ListBuffer[Game]()
+
+    // initialize the first game
+    games += Game.initializeGame( 19, new Player( "white" ), new Player( "black" ) )
+
+    for ( c <- cmds ) {
+      execute( games, c )
+    }
+
+    games.toList
+  }
+
+  def execute( games : ListBuffer[Game], cmd : GTPCommand ) : GTPResponse = {
+
+    // required commands
+    cmd.cmd.toLowerCase() match {
+      case "protocol_version" => {new GTPResponse( "=", cmd.id, "2" )}
+      case "name" =>  {new GTPResponse( "=", cmd.id, "sgo" )}
+      case "version" =>  {new GTPResponse( "=", cmd.id, "0.1" )}
+      case "known_command" => {new UnknownCommand( cmd.id, "known_command" )}
+      case "list_commands" => {new UnknownCommand( cmd.id, "list_commands" )}
+      case "quit" => {new UnknownCommand( cmd.id, "quit" )}
+      case "boardsize" => {new UnknownCommand( cmd.id, "boardsize" )}
+      case "clear_board" => {new UnknownCommand( cmd.id, "clear_board" )}
+      case "komi" => {new UnknownCommand( cmd.id, "komi" )}
+      case "play" => {new UnknownCommand( cmd.id, "play" )}
+      case "genmove" => {new UnknownCommand( cmd.id, "genmove" )}
+      case _ => {new UnknownCommand( cmd.id, cmd.cmd )}
+    }
+
+  }
 
 }
