@@ -59,3 +59,6 @@ class UnimplementedCommand( id : String, cmd : String ) extends GTPResponse( "?"
 
   }
 }
+
+class ErrorResponse( id : String, msg : String ) extends GTPResponse( "?", id, msg )
+class SuccessResponse( id : String, msg : String ) extends GTPResponse( "=", id, msg )
