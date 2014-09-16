@@ -12,10 +12,18 @@ object GTPStdio {
     
     while( ctx.ready ){    
         GTPParser.parseLine( Console.readLine ) match {
-          case Some(c) => {}
-          case None => {}
+          case Some(c) => {
+            sendResponse( GTPParser.execute( ctx, c ) )
+          }
+          case None => {
+            // nada
+          }
         }
     }
     
+  }
+
+  def sendResponse( rsp : GTPResponse ) : Unit = {
+    Console.out.print( rsp )
   }
 }
