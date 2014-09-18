@@ -59,6 +59,10 @@ class Game {
     state
 
   }
+
+  def inProgress() : Boolean = {
+    !currentState().isInstanceOf[Setup]
+  }
 }
 
 object Game {

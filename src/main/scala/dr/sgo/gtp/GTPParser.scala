@@ -1,5 +1,7 @@
 package dr.sgo.gtp
 
+import dr.sgo.model.play.FixedHandicap
+import dr.sgo.ui.console.SGoConsole
 import org.apache.commons.lang3.StringUtils
 import dr.sgo.model.{Komi, Game, Player}
 import org.apache.commons.io.IOUtils
@@ -112,7 +114,7 @@ object GTPParser {
       else {
 
         val size = NumberUtils.toInt( command.args(0), -1 )
-        if( size == 9 || size == 13 || size == 19 ){
+        if( size >= 9 && size <= 19 && ( size % 2 == 1 ) ){
           val curr = context.games.last
           context.games += Game.initializeGame( size, curr.white, curr.black )
           new SuccessResponse( command.id, "ok" )
@@ -149,6 +151,39 @@ object GTPParser {
 
   }
 
+  def fixedHandicap(context : GTPContext, command : GTPCommand) : GTPResponse = {
+
+    if( command.args.isEmpty ){
+      new ErrorResponse( command.id, "invalid handicap" )
+    }
+    else {
+      if( !NumberUtils.isDigits( command.args(0) ) ) {
+        new ErrorResponse( command.id, "invalid handicap" )
+      }
+      else{
+        val handicap = NumberUtils.toInt( command.args(0), -1 )
+        if( handicap > 0 && handicap < 10 ){
+          // if the game is in progress - setting a handicap is not allowed
+          if( context.games.last.inProgress() ){
+            new ErrorResponse( command.id, "game in progress" )
+          }
+          else {
+            Game.execute( context.games.last, Some(context.games.last.black), new FixedHandicap(handicap))
+            new SuccessResponse( command.id, "" )
+          }
+        }
+        else {
+          new ErrorResponse( command.id, "invalid handicap" )
+        }
+      }
+    }
+
+  }
+
+  def showboard(context : GTPContext, cmd : GTPCommand ) : GTPResponse = {
+    new SuccessResponse( cmd.id, "\n" + SGoConsole.toString( context.games.last ) )
+  }
+
   def execute(ctx : GTPContext, cmd : GTPCommand) : GTPResponse = {
 
     // required commands
@@ -180,7 +215,7 @@ object GTPParser {
       case "final_score" => { new UnimplementedCommand(cmd.id, "final_score") }
       case "final_status_list" => { new UnimplementedCommand(cmd.id, "final_status_list") }
       // debug
-      case "showboard" => { new UnimplementedCommand(cmd.id, "showboard") }
+      case "showboard" => { showboard( ctx, cmd ) }
         // gnugo commands
       case "aa_confirm_safety" => { new UnimplementedCommand(cmd.id, "aa_confirm_safety") }
       case "accurate_approxlib" => { new UnimplementedCommand(cmd.id, "accurate_approxlib") }
