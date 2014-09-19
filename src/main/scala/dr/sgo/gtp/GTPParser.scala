@@ -162,7 +162,7 @@ object GTPParser {
       }
       else{
         val handicap = NumberUtils.toInt( command.args(0), -1 )
-        if( handicap > 0 && handicap < 10 ){
+        if( handicap > 1 && handicap < 10 ){
           // if the game is in progress - setting a handicap is not allowed
           if( context.games.last.inProgress() ){
             new ErrorResponse( command.id, "game in progress" )
@@ -201,7 +201,7 @@ object GTPParser {
       case "play" => { new UnimplementedCommand(cmd.id, "play") }
       case "genmove" => { new UnimplementedCommand(cmd.id, "genmove") }
       // tournament
-      case "fixed_handicap" => { new UnimplementedCommand(cmd.id, "fixed_handicap") }
+      case "fixed_handicap" => { fixedHandicap( ctx, cmd ) }
       case "place_free_handicap" => { new UnimplementedCommand(cmd.id, "place_free_handicap") }
       case "set_free_handicap" => { new UnimplementedCommand(cmd.id, "set_free_handicap") }
       // regression

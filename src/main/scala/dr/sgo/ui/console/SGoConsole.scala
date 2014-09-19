@@ -59,9 +59,11 @@ object SGoConsole {
     var header = renderColumnHeader(board)
     lines += header
 
-    for( i <- 0 until board.size ){
+    val tempLines = for( i <- 0 until board.size ) yield renderRow( board, i )
+    val t2 = tempLines.reverse
 
-      lines += renderRow( board, i )
+    for( l <- t2 ){
+      lines += l
     }
 
     lines += header

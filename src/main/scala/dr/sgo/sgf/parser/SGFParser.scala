@@ -1,5 +1,7 @@
 package dr.sgo.sgf.parser
 
+import dr.sgo.ui.console.SGoConsole
+
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.combinator.Parsers
 import java.io.FileReader
@@ -67,11 +69,13 @@ object SGFParser {
   def main( args : Array[String] ) : Unit = {
 
     val p = new SGFParser()
-    var r = p.loadSGF("c:/dev/projects/go/sgo/git/sgo/src/test/resources/WeakBot50k-TheGNUGo.sgf")
+    var r = p.loadSGF("c:/dev/projects/go/sgo/git/sgo/src/test/resources/sgf/WeakBot50k-TheGNUGo.sgf")
 
     logger.info(r._1)
 
     val t = GameTree.convert(r._2.get)
+
+    SGoConsole.renderGame( t )
 
   }
 

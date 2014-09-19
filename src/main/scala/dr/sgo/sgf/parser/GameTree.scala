@@ -108,7 +108,7 @@ object GameTree {
   }
 
   def addStones( color : Color, game : Game, positions : List[String] ) : Unit = {
-    var ps = positions.map( ( p ) => { convertCoords( p.toUpperCase() ) } )
+    var ps = positions.map( ( p ) => { convertCoords( p.toUpperCase(), game.currentState().board.size ) } )
     Game.execute( game, None, new Add( color, ps ) )
   }
 
@@ -122,7 +122,7 @@ object GameTree {
             Game.execute( game, Some(game.black), new Pass( Black() ) )
           }
           else {
-            Game.execute( game, Some(game.black), new Place( Black(), convertCoords( prop.values.head.toUpperCase() ) ) )
+            Game.execute( game, Some(game.black), new Place( Black(), convertCoords( prop.values.head.toUpperCase(), game.currentState().board.size ) ) )
           }
         }
         case "W" => {
@@ -130,24 +130,24 @@ object GameTree {
             Game.execute( game, Some(game.white), new Pass( White() ) )
           }
           else {
-            Game.execute( game, Some(game.white), new Place( White(), convertCoords( prop.values.head.toUpperCase() ) ) )
+            Game.execute( game, Some(game.white), new Place( White(), convertCoords( prop.values.head.toUpperCase(), game.currentState().board.size ) ) )
           }
         }
         case "C" => game.currentState.comment = prop.values.head
         case "AB" => {
-          Game.execute( game, Some(game.black), new Add( Black(), convertCoords( prop.values ) ) )
+          Game.execute( game, Some(game.black), new Add( Black(), convertCoords( prop.values, game.currentState().board.size ) ) )
         }
         case "AW" => {
-          Game.execute( game, Some(game.white), new Add( White(), convertCoords( prop.values ) ) )
+          Game.execute( game, Some(game.white), new Add( White(), convertCoords( prop.values, game.currentState().board.size ) ) )
         }
         case "AE" => {
-          Game.execute(game, None, new Clear( convertCoords( prop.values ) ) )
+          Game.execute(game, None, new Clear( convertCoords( prop.values, game.currentState().board.size ) ) )
         }
         case "TB" => {
-          game.currentState.territory += Black() -> convertCoords( prop.values )
+          game.currentState.territory += Black() -> convertCoords( prop.values, game.currentState().board.size )
         }
         case "TW" => {
-          game.currentState.territory += White() -> convertCoords( prop.values )
+          game.currentState.territory += White() -> convertCoords( prop.values, game.currentState().board.size )
         }
         case "PL" => game.currentState.toPlay = prop.values.head
         case "LB" => addLabels( game.currentState, prop.values )
@@ -156,7 +156,7 @@ object GameTree {
         case "WL" => game.currentState.whiteTimeLeft = prop.values.head
         case "OB" => game.currentState.blackMovesLeft = prop.values.head
         case "OW" => game.currentState.whiteMovesLeft = prop.values.head
-        case "CR" => game.currentState.circle ++= convertCoords( prop.values )
+        case "CR" => game.currentState.circle ++= convertCoords( prop.values, game.currentState().board.size )
         case "ID" => game.currentState.id = prop.values.head
         case "N" => game.currentState.name = prop.values.head
         case _ => logger.info( prop.id + ":unknown" )
@@ -167,7 +167,7 @@ object GameTree {
 
   def addLabels( game : Game, props : List[String] ) : Unit = {
     for ( p <- props ) {
-      var pos = convertCoords( p.split( ':' ).head.toUpperCase() )
+      var pos = convertCoords( p.split( ':' ).head.toUpperCase(), game.currentState().board.size )
       var txt = p.split( ':' ).tail.head
       game.labels += new Label( pos, txt )
     }
@@ -175,7 +175,7 @@ object GameTree {
 
   def addLabels( state : GameState, props : List[String] ) : Unit = {
     for ( p <- props ) {
-      var pos = convertCoords( p.split( ':' ).head.toUpperCase() )
+      var pos = convertCoords( p.split( ':' ).head.toUpperCase(), state.board.size )
       var txt = p.split( ':' ).tail.head
       state.labels += new Label( pos, txt )
     }
@@ -183,13 +183,13 @@ object GameTree {
 
   def addIllegal( game : Game, props : List[String] ) : Unit = {
     for ( p <- props ) {
-      game.illegals += convertCoords( p.toUpperCase() )
+      game.illegals += convertCoords( p.toUpperCase(), game.currentState().board.size )
     }
   }
 
   def addIllegal( state : GameState, props : List[String] ) : Unit = {
     for ( p <- props ) {
-      state.illegals += convertCoords( p.toUpperCase() )
+      state.illegals += convertCoords( p.toUpperCase(), state.board.size )
     }
   }
 
@@ -203,14 +203,14 @@ object GameTree {
     }
   }
 
-  def convertCoords( coords : String ) : Position = {
+  def convertCoords( coords : String, size : Int ) : Position = {
     var col = coords.head
     var row = coords.tail.head
-    new Position( Cols.indexOf(col), Cols.indexOf(row))
+    new Position( Cols.indexOf(col), ((size - 1) - Cols.indexOf(row) ) )
   }
 
-  def convertCoords( coords : List[String] ) : List[Position] = {
-    coords.map( ( c ) => { convertCoords( c.toUpperCase() ) } )
+  def convertCoords( coords : List[String], size : Int ) : List[Position] = {
+    coords.map( ( c ) => { convertCoords( c.toUpperCase(), size ) } )
   }
 
   val Cols = List( 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S' )
