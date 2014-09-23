@@ -1,9 +1,10 @@
 package dr.sgo.gtp
 
-import dr.sgo.model.play.FixedHandicap
+import dr.sgo.engine.RandomMoveEngine
+import dr.sgo.model.play.{Place, FreeHandicap, FixedHandicap}
 import dr.sgo.ui.console.SGoConsole
 import org.apache.commons.lang3.StringUtils
-import dr.sgo.model.{Komi, Game, Player}
+import dr.sgo.model._
 import org.apache.commons.io.IOUtils
 import java.io.FileReader
 import java.io.File
@@ -168,8 +169,11 @@ object GTPParser {
             new ErrorResponse( command.id, "game in progress" )
           }
           else {
-            Game.execute( context.games.last, Some(context.games.last.black), new FixedHandicap(handicap))
-            new SuccessResponse( command.id, "" )
+            val play = new FixedHandicap( handicap )
+            Game.execute( context.games.last, Some(context.games.last.black), play )
+            val ts = play.positions.map( (p) => { translate(p) } )
+            val msg = ts.mkString( " " )
+            new SuccessResponse( command.id, msg )
           }
         }
         else {
@@ -180,8 +184,124 @@ object GTPParser {
 
   }
 
+  def translate( pos : (Int,Int) ) : String = {
+    Cols(pos._1).toString + ( pos._2 + 1 )
+  }
+
+  def translate( coords : String ) : Option[(Int,Int)] = {
+    val x = coords.head.toUpper
+    val y = coords.tail
+
+    if( !Cols.contains(x) ){
+      None
+    }
+    else {
+      if( !NumberUtils.isDigits(y)){
+        None
+      }
+      else {
+        Some((Cols.indexOf(x), (y.toInt - 1) ))
+      }
+    }
+  }
+
+  val Cols = List( 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T' )
+
   def showboard(context : GTPContext, cmd : GTPCommand ) : GTPResponse = {
     new SuccessResponse( cmd.id, "\n" + SGoConsole.toString( context.games.last ) )
+  }
+
+  def setFreeHandicap(context : GTPContext, command : GTPCommand) : GTPResponse = {
+
+    if( command.args.isEmpty ){
+      new ErrorResponse( command.id, "missing vertices" )
+    }
+    else {
+
+      val positions = command.args.map( (s) => { translate(s) } )
+
+      if( positions.find( (p) => { p match{ case None => true case _ => false } } ).size > 0 ) {
+        new ErrorResponse( command.id, "invalid vertices" )
+      }
+      else {
+        // all are good lets add
+        if( context.games.last.inProgress() ){
+          new ErrorResponse( command.id, "game in progress" )
+        }
+        else{
+          val play = new FreeHandicap( positions.flatten )
+          Game.execute( context.games.last, Some(context.games.last.black), play )
+          new SuccessResponse( command.id, "" )
+        }
+      }
+
+    }
+  }
+
+  def play(context : GTPContext, command : GTPCommand) : GTPResponse = {
+
+    if( command.args.isEmpty || command.args.size != 2 ){
+      new ErrorResponse( command.id, "syntax error" )
+    }
+    else {
+      val color = command.args(0).head.toUpper match {
+        case 'W' => Some(White())
+        case 'B' => Some(Black())
+        case _ => None
+      }
+
+      val pos = translate( command.args(1) )
+
+      if( color.isEmpty || pos.isEmpty ){
+        new ErrorResponse( command.id, "syntax error" )
+      }
+      else {
+        val p = new Place( color.get, pos.get )
+        val g = context.games.last
+        // TODO: logic here to make sure its a valid move
+        Game.execute( g, Some(g.getPlayer(color.get)), p )
+        new SuccessResponse( command.id, "" )
+      }
+    }
+  }
+
+  def generateMove(context : GTPContext, command : GTPCommand) : GTPResponse = {
+
+    if( command.args.isEmpty || command.args.size != 1 ){
+      new ErrorResponse( command.id, "syntax error" )
+    }
+    else {
+
+      val color = command.args(0).head.toUpper match {
+        case 'W' => Some(White())
+        case 'B' => Some(Black())
+        case _ => None
+      }
+
+      if( color.isEmpty ){
+        new ErrorResponse( command.id, "syntax error" )
+      }
+      else {
+
+        val engine = new RandomMoveEngine()
+        val move = engine.generateMove( context.games.last.currentState().board, color.get )
+
+        if( move.position.isEmpty ){
+          new ErrorResponse( command.id, "syntax error" )
+        }
+        else {
+
+          val pos = move.position.get
+          val play = new Place( color.get, pos )
+          val game = context.games.last
+          Game.execute( game, Some( game.getPlayer( color.get ) ), play )
+
+          new SuccessResponse( command.id, translate( (pos.X, pos.Y ) ) )
+
+        }
+      }
+    }
+
   }
 
   def execute(ctx : GTPContext, cmd : GTPCommand) : GTPResponse = {
@@ -198,12 +318,12 @@ object GTPParser {
       case "boardsize" => { setBoardsize( ctx, cmd ) }
       case "clear_board" => { clearBoard( ctx, cmd ) }
       case "komi" => { setKomi( ctx, cmd ) }
-      case "play" => { new UnimplementedCommand(cmd.id, "play") }
-      case "genmove" => { new UnimplementedCommand(cmd.id, "genmove") }
+      case "play" => { play( ctx, cmd ) }
+      case "genmove" => { generateMove( ctx, cmd ) }
       // tournament
       case "fixed_handicap" => { fixedHandicap( ctx, cmd ) }
-      case "place_free_handicap" => { new UnimplementedCommand(cmd.id, "place_free_handicap") }
-      case "set_free_handicap" => { new UnimplementedCommand(cmd.id, "set_free_handicap") }
+      case "place_free_handicap" => { fixedHandicap( ctx, cmd ) }
+      case "set_free_handicap" => { setFreeHandicap( ctx, cmd ) }
       // regression
       case "loadsgf" => { new UnimplementedCommand(cmd.id, "loadsgf") }
       case "reg_genmove" => { new UnimplementedCommand(cmd.id, "reg_genmove") }
@@ -257,7 +377,6 @@ object GTPParser {
       case "eval_eye" => { new UnimplementedCommand(cmd.id, "eval_eye") }
       case "experimental_score" => { new UnimplementedCommand(cmd.id, "experimental_score") }
       case "eye_data" => { new UnimplementedCommand(cmd.id, "eye_data") }
-      case "final_status_list" => { new UnimplementedCommand(cmd.id, "final_status_list") }
       case "findlib" => { new UnimplementedCommand(cmd.id, "findlib") }
       case "finish_sgftrace" => { new UnimplementedCommand(cmd.id, "finish_sgftrace") }
       case "fixed_handicap" => { new UnimplementedCommand(cmd.id, "fixed_handicap") }

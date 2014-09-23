@@ -2,24 +2,18 @@ package dr.sgo.model.play
 
 import dr.sgo.model.{Black, GameState}
 
+import scala.collection.mutable.ListBuffer
+
 class FixedHandicap( size : Int ) extends Handicap {
+
+
   override def execute(state : GameState) : Unit = {
 
-    val pos = handicapMap(state.board.size)(size)
-    for( p <- pos ) {
+    positions ++= handicapMap(state.board.size)(size)
+    for( p <- positions ) {
       state.board.setStone(Black(), p)
     }
   }
-
-  /*
-  size max
-  19 	2,9
-  17 	9
-  15 	9
-  13 	9
-  11 	9
-  9 	9
-   */
 
   val handicapMap = Map(
     9 -> Map(

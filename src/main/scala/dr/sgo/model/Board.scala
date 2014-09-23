@@ -42,4 +42,15 @@ class Board( val size : Int ) {
   def clearStones( ps : List[Position] ) = {
     for( p <- ps ){ grid(p.X)(p.Y) = new Stone( Open() )}
   }
+
+  def openPositions() : List[Position] = {
+
+    val ps = for( x <- 0 until size;
+      y <- 0 until size;
+      p = new Position( x, y );
+      if( isOpen( p ) ) )
+      yield p
+
+    ps.toList
+  }
 }

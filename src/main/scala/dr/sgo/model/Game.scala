@@ -63,6 +63,13 @@ class Game {
   def inProgress() : Boolean = {
     !currentState().play.isInstanceOf[Setup]
   }
+
+  def getPlayer( color : Color ) : Player = {
+    color match {
+      case White() => white
+      case Black() => black
+    }
+  }
 }
 
 object Game {
