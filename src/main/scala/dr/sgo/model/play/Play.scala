@@ -6,4 +6,6 @@ abstract class Play {
 
   def execute( state : GameState ) : Unit
 
+  def undoable() : Boolean
+
 }

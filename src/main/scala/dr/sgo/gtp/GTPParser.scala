@@ -238,17 +238,22 @@ object GTPParser {
     }
   }
 
+
+  def toColor( s : String ) : Option[Color] = {
+    val color = s(0).toUpper match {
+      case 'W' => Some(White())
+      case 'B' => Some(Black())
+      case _ => None
+    }
+  }
+
   def play(context : GTPContext, command : GTPCommand) : GTPResponse = {
 
     if( command.args.isEmpty || command.args.size != 2 ){
       new ErrorResponse( command.id, "syntax error" )
     }
     else {
-      val color = command.args(0).head.toUpper match {
-        case 'W' => Some(White())
-        case 'B' => Some(Black())
-        case _ => None
-      }
+      val color = toColor( command.args(0) )
 
       val pos = translate( command.args(1) )
 
@@ -272,11 +277,7 @@ object GTPParser {
     }
     else {
 
-      val color = command.args(0).head.toUpper match {
-        case 'W' => Some(White())
-        case 'B' => Some(Black())
-        case _ => None
-      }
+      val color = toColor( command.args(0) )
 
       if( color.isEmpty ){
         new ErrorResponse( command.id, "syntax error" )
@@ -304,6 +305,92 @@ object GTPParser {
 
   }
 
+  def undo(context : GTPContext, command : GTPCommand) : GTPResponse = {
+
+    if( context.games.last.canUndo() ){
+       context.games.last.undo()
+       new SuccessResponse( command.id, "" )
+    }
+    else {
+      new ErrorResponse( command.id, "cannot undo" )
+    }
+  }
+
+  def loadSGF(context : GTPContext, command : GTPCommand) : GTPResponse = {
+    new UnimplementedCommand( command.id, "loadsgf" )
+  }
+
+  def setTimeSettings(context : GTPContext, command : GTPCommand) : GTPResponse = {
+    if( command.args.isEmpty || command.args.size != 3 ){
+      new ErrorResponse( command.id, "syntax error" )
+    }
+    else {
+      // make sure all args are ints
+      if( command.args.exists( (s) => { !NumberUtils.isDigits( s ) } ) ){
+        new ErrorResponse( command.id, "syntax error" )
+      }
+      else {
+
+        val nums = command.args.map( (s) => { NumberUtils.toInt(s) } )
+        val state = context.games.last.currentState()
+        state.mainTime = nums(0)
+        state.byoYomiTime = nums(1)
+        state.byoYomiMoves = nums(2)
+        new SuccessResponse( command.id, "" )
+      }
+    }
+  }
+
+  def setTimeLeft(context : GTPContext, command : GTPCommand) : GTPResponse = {
+
+    if( command.args.isEmpty || command.args.size != 3 ){
+      new ErrorResponse( command.id, "syntax error" )
+    }
+    else {
+
+      val color = toColor( command.args(0) )
+      if( color.isEmpty ){
+        new ErrorResponse( command.id, "syntax error" )
+      }
+      else {
+
+        if( !NumberUtils.isDigits( command.args(1) ) || !NumberUtils.isDigits( command.args(2) ) ){
+          new ErrorResponse( command.id, "syntax error" )
+        }
+        else {
+
+          val nums = command.args.tail.map( (s) => { NumberUtils.toInt(s) } )
+
+          val state = context.games.last.currentState()
+          color match {
+            case Black() => {
+              state.blackTimeLeft = nums(0).toString
+              state.blackMovesLeft = nums(1).toString
+            }
+            case White() => {
+              state.whiteTimeLeft = nums(0).toString
+              state.whiteMovesLeft = nums(1).toString
+            }
+          }
+          new SuccessResponse( command.id, "" )
+        }
+      }
+    }
+  }
+
+  def finalScore(context : GTPContext, command : GTPCommand) : GTPResponse = {
+    new SuccessResponse( command.id, "0" )
+  }
+
+  def finalStatusList(context : GTPContext, command : GTPCommand) : GTPResponse = {
+    if( command.args.isEmpty ) {
+      new ErrorResponse( command.id, "syntax error" )
+    }
+    else {
+      new SuccessResponse(command.id, "0")
+    }
+  }
+
   def execute(ctx : GTPContext, cmd : GTPCommand) : GTPResponse = {
 
     // required commands
@@ -328,12 +415,12 @@ object GTPParser {
       case "loadsgf" => { new UnimplementedCommand(cmd.id, "loadsgf") }
       case "reg_genmove" => { new UnimplementedCommand(cmd.id, "reg_genmove") }
       // play commands
-      case "undo" => { new UnimplementedCommand(cmd.id, "undo") }
+      case "undo" => { undo( ctx, cmd ) }
       // other tournament commands
-      case "time_settings" => { new UnimplementedCommand(cmd.id, "time_settings") }
-      case "time_left" => { new UnimplementedCommand(cmd.id, "time_left") }
-      case "final_score" => { new UnimplementedCommand(cmd.id, "final_score") }
-      case "final_status_list" => { new UnimplementedCommand(cmd.id, "final_status_list") }
+      case "time_settings" => { setTimeSettings( ctx, cmd ) }
+      case "time_left" => { setTimeLeft( ctx, cmd ) }
+      case "final_score" => { finalScore( ctx, cmd ) }
+      case "final_status_list" => { finalStatusList( ctx, cmd ) }
       // debug
       case "showboard" => { showboard( ctx, cmd ) }
         // gnugo commands

@@ -40,4 +40,7 @@ class Place( val color : Color, val pos : Position ) extends Play {
     }
 
   }
+
+  def undoable() = true
+
 }

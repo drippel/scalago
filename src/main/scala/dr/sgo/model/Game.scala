@@ -1,7 +1,6 @@
 package dr.sgo.model
 
-import dr.sgo.model.play.Setup
-import dr.sgo.model.play.Play
+import dr.sgo.model.play.{Handicap, Setup, Play}
 import scala.collection.mutable.ListBuffer
 
 class Game {
@@ -62,6 +61,20 @@ class Game {
 
   def inProgress() : Boolean = {
     !currentState().play.isInstanceOf[Setup]
+  }
+
+  def canUndo() : Boolean = {
+    currentState().play.undoable()
+  }
+
+  def undo() = {
+    val state = currentState()
+    state.prev match {
+      case Some(prev) => {
+        prev.next.clear()
+      }
+      case _ => {}
+    }
   }
 
   def getPlayer( color : Color ) : Player = {

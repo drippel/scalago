@@ -13,4 +13,5 @@ class Setup( val size : Int ) extends Play {
     return
   }
 
+  def undoable() = true
 }

@@ -15,6 +15,8 @@ class FixedHandicap( size : Int ) extends Handicap {
     }
   }
 
+  def undoable() :Boolean = false
+
   val handicapMap = Map(
     9 -> Map(
       2 -> List( (2,2), (6,6) ),

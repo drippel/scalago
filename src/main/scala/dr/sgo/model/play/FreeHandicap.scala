@@ -11,4 +11,6 @@ class FreeHandicap( ps : List[(Int,Int)] ) extends Handicap {
       state.board.setStone(Black(), p)
     }
   }
+
+  def undoable() = false
 }

@@ -32,5 +32,9 @@ class GameState( val prev : Option[GameState], val player : Option[Player], val 
   val groups = ListBuffer[Group]()
   val captures = ListBuffer[Group]()
 
+  var mainTime=0
+  var byoYomiTime=0
+  var byoYomiMoves=0
+
   play.execute(this)
 }

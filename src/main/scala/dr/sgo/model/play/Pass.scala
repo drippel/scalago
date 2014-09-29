@@ -9,4 +9,6 @@ class Pass( val color : Color ) extends Play {
   def execute( state : GameState ) : Unit = {
     return
   }
+
+  def undoable() = true
 }

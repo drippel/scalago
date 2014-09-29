@@ -12,4 +12,6 @@ class Clear( val pos : List[Position] ) extends Play {
       state.board.setStone( new Stone( Open() ), p )
     }
   }
+
+  def undoable() :Boolean = true
 }

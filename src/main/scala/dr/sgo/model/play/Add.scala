@@ -12,4 +12,6 @@ class Add( val color : Color, val positions : List[Position] ) extends Play {
       state.board.setStone( new Stone(color), p )
     }
   }
+
+  def undoable() :Boolean = true
 }
