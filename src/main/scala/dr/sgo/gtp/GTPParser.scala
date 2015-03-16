@@ -2,6 +2,7 @@ package dr.sgo.gtp
 
 import dr.sgo.engine.RandomMoveEngine
 import dr.sgo.model.play.{Place, FreeHandicap, FixedHandicap}
+import dr.sgo.sgf.parser.{GameTree, SGFParser}
 import dr.sgo.ui.console.SGoConsole
 import org.apache.commons.lang3.StringUtils
 import dr.sgo.model._
@@ -245,6 +246,7 @@ object GTPParser {
       case 'B' => Some(Black())
       case _ => None
     }
+    color
   }
 
   def play(context : GTPContext, command : GTPCommand) : GTPResponse = {
@@ -270,7 +272,7 @@ object GTPParser {
     }
   }
 
-  def generateMove(context : GTPContext, command : GTPCommand) : GTPResponse = {
+  def generateMove(context : GTPContext, command : GTPCommand, playIt : Boolean = true ) : GTPResponse = {
 
     if( command.args.isEmpty || command.args.size != 1 ){
       new ErrorResponse( command.id, "syntax error" )
@@ -293,9 +295,11 @@ object GTPParser {
         else {
 
           val pos = move.position.get
-          val play = new Place( color.get, pos )
-          val game = context.games.last
-          Game.execute( game, Some( game.getPlayer( color.get ) ), play )
+          if( playIt ) {
+            val play = new Place(color.get, pos)
+            val game = context.games.last
+            Game.execute(game, Some(game.getPlayer(color.get)), play)
+          }
 
           new SuccessResponse( command.id, translate( (pos.X, pos.Y ) ) )
 
@@ -317,7 +321,32 @@ object GTPParser {
   }
 
   def loadSGF(context : GTPContext, command : GTPCommand) : GTPResponse = {
-    new UnimplementedCommand( command.id, "loadsgf" )
+
+    if( command.args.isEmpty || command.args.size != 2 ){
+      new ErrorResponse( command.id, "syntax error" )
+    }
+    else {
+
+      val file = command.args(0)
+      val parser = new SGFParser()
+      parser.loadSGF( file ) match {
+
+        case ("OK", Some(t)) => {
+
+          var game = GameTree.convert(t)
+          context.games += game
+
+
+          // TODO: need to roll to the move specified
+
+          new SuccessResponse( command.id, "" )
+        }
+        case _ => {
+          new ErrorResponse( command.id, "syntax error" )
+        }
+
+      }
+    }
   }
 
   def setTimeSettings(context : GTPContext, command : GTPCommand) : GTPResponse = {
@@ -363,11 +392,11 @@ object GTPParser {
 
           val state = context.games.last.currentState()
           color match {
-            case Black() => {
+            case Some(Black()) => {
               state.blackTimeLeft = nums(0).toString
               state.blackMovesLeft = nums(1).toString
             }
-            case White() => {
+            case Some(White()) => {
               state.whiteTimeLeft = nums(0).toString
               state.whiteMovesLeft = nums(1).toString
             }
@@ -387,7 +416,31 @@ object GTPParser {
       new ErrorResponse( command.id, "syntax error" )
     }
     else {
-      new SuccessResponse(command.id, "0")
+
+      val engine = new RandomMoveEngine()
+      val analysis = engine.analyze( context.games.last.currentState().board )
+
+      command.args(0).toLowerCase() match {
+        case "alive" => {
+          val ps = analysis.alive
+          val ts = ps.map( (p) => { (p.X,p.Y) } )
+          val coords = ts.map( (p) => { translate(p) } )
+          new SuccessResponse( command.id, coords.mkString(" " ) )
+        }
+        case "seki" => {
+          val ps = analysis.seki
+          val ts = ps.map( (p) => { (p.X,p.Y) } )
+          val coords = ts.map( (p) => { translate(p) } )
+          new SuccessResponse( command.id, coords.mkString(" " ) )
+        }
+        case "dead" => {
+          val ps = analysis.dead
+          val ts = ps.map( (p) => { (p.X,p.Y) } )
+          val coords = ts.map( (p) => { translate(p) } )
+          new SuccessResponse( command.id, coords.mkString(" " ) )
+        }
+        case _ => {  new ErrorResponse( command.id, "syntax error" ) }
+      }
     }
   }
 
@@ -412,8 +465,8 @@ object GTPParser {
       case "place_free_handicap" => { fixedHandicap( ctx, cmd ) }
       case "set_free_handicap" => { setFreeHandicap( ctx, cmd ) }
       // regression
-      case "loadsgf" => { new UnimplementedCommand(cmd.id, "loadsgf") }
-      case "reg_genmove" => { new UnimplementedCommand(cmd.id, "reg_genmove") }
+      case "loadsgf" => { loadSGF( ctx, cmd ) }
+      case "reg_genmove" => { generateMove( ctx, cmd, false ) }
       // play commands
       case "undo" => { undo( ctx, cmd ) }
       // other tournament commands
@@ -569,7 +622,8 @@ object GTPParser {
       "time_left" ,
       "final_score" ,
       "final_status_list" ,
-      "showboard" ,
+      "showboard"
+      /* ,
       "aa_confirm_safety" ,
       "accurate_approxlib" ,
       "accuratelib" ,
@@ -689,5 +743,6 @@ object GTPParser {
       "worm_cutstone" ,
       "worm_data" ,
       "worm_stones"
+      */
     )
 }

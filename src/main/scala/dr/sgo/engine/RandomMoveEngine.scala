@@ -8,7 +8,7 @@ class RandomMoveEngine extends Engine {
 
   val rand = new Random()
 
-  override def generateMove(board : Board, color : Color ) : Move = {
+   def generateMove(board : Board, color : Color ) : Move = {
 
     val open = board.openPositions()
     if( open.isEmpty ){
@@ -19,7 +19,11 @@ class RandomMoveEngine extends Engine {
       // TODO: need to check validity of move, suicide, etc.
       new Move( Some(open(i)), "random position" )
     }
+  }
 
 
+  def analyze( board : Board ) : Analysis = {
+    val analysis = new Analysis( board.clone() )
+    analysis
   }
 }
